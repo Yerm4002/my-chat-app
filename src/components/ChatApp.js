@@ -1,0 +1,221 @@
+// WhatsApp-like Chat UI with contact persistence and proper timestamps
+
+import React, { useState, useEffect } from 'react';
+import { auth, provider, db } from './firebase';
+import {
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  serverTimestamp
+} from 'firebase/firestore';
+ import LogIn from './components/LogIn';
+import Signup from './components/Signup';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+
+const ChatList = ({ currentUser, selectUser }) => {
+  const [contacts, setContacts] = useState([]);
+  const [emailInput, setEmailInput] = useState('');
+
+  useEffect(() => {
+    const q = query(collection(db, `contacts/${currentUser.uid}/list`));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const contactPromises = snapshot.docs.map(async (docSnap) => {
+        const userRef = doc(db, 'users', docSnap.id);
+        const userDoc = await getDoc(userRef);
+        return { uid: userDoc.id, ...userDoc.data() };
+      });
+      const contactUsers = await Promise.all(contactPromises);
+      setContacts(contactUsers);
+    });
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  const handleAddContact = async () => {
+    if (!emailInput.trim()) return;
+    const q = query(collection(db, 'users'), where('email', '==', emailInput));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const contactUser = querySnapshot.docs[0].data();
+      const contactId = querySnapshot.docs[0].id;
+      const contactRef = doc(db, `contacts/${currentUser.uid}/list/${contactId}`);
+      await setDoc(contactRef, { addedAt: serverTimestamp() });
+      setEmailInput('');
+    } else {
+      alert('User not found');
+    }
+  };
+
+  return (
+    <div className="w-1/3 border-r overflow-y-auto h-screen p-4">
+      <h2 className="text-xl font-bold mb-4">Chats</h2>
+      <div className="flex mb-4">
+        <input
+          value={emailInput}
+          onChange={(e) => setEmailInput(e.target.value)}
+          placeholder="Add contact by email"
+          className="flex-1 border rounded px-2 py-1"
+        />
+        <button
+          onClick={handleAddContact}
+          className="ml-2 bg-green-500 text-white px-3 py-1 rounded"
+        >
+          Add
+        </button>
+      </div>
+      {contacts.map((user) => (
+        <div
+          key={user.uid}
+          className="p-3 border-b hover:bg-gray-100 cursor-pointer"
+          onClick={() => selectUser(user)}
+        >
+          <div className="font-semibold">{user.displayName}</div>
+          <div className="text-sm text-gray-500">Tap to chat</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const ChatWindow = ({ currentUser, selectedUser }) => {
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState('');
+
+  const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
+
+  useEffect(() => {
+    const q = query(
+      collection(db, `privateMessages/${chatId}/messages`),
+      orderBy('timestamp')
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setMessages(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    });
+    return () => unsubscribe();
+  }, [chatId]);
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+    await addDoc(collection(db, `privateMessages/${chatId}/messages`), {
+      text: message,
+      senderId: currentUser.uid,
+      timestamp: serverTimestamp(),
+    });
+    setMessage('');
+  };
+
+  return (
+    <div className="w-2/3 h-screen flex flex-col">
+      <div className="p-4 border-b font-bold bg-gray-100">{selectedUser.displayName}</div>
+      <div className="flex-1 overflow-y-auto p-4 bg-white">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`mb-2 p-2 rounded-lg max-w-xs ${
+              msg.senderId === currentUser.uid ? 'bg-green-200 ml-auto' : 'bg-gray-200'
+            }`}
+          >
+            {msg.text}
+          </div>
+        ))}
+      </div>
+      <form onSubmit={sendMessage} className="p-4 border-t flex">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type a message..."
+          className="flex-1 border rounded px-3 py-2"
+        />
+        <button type="submit" className="ml-2 px-4 py-2 bg-blue-500 text-white rounded">
+          Send
+        </button>
+      </form>
+    </div>
+  );
+};
+
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+
+        const userRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(userRef);
+        if (!docSnap.exists()) {
+          await setDoc(userRef, {
+            uid: currentUser.uid,
+            displayName: currentUser.displayName,
+            email: currentUser.email,
+          });
+        }
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const login = () => signInWithPopup(auth, provider);
+  const logout = () => signOut(auth);
+
+  if (!user) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4">Welcome to WhatsApp Clone</h2>
+     
+
+...
+
+<div className="p-8 text-center">
+  <h2 className="text-2xl font-bold mb-4">Welcome to WhatsApp Clone</h2>
+  
+  <button onClick={login} className="bg-green-500 text-white px-4 py-2 rounded mb-4">
+    Login with Google
+  </button>
+
+  <h3 className="text-lg mt-4 mb-2 font-semibold">Or login with Email</h3>
+  <LogIn />
+
+  <h3 className="text-lg mt-6 mb-2 font-semibold">New user? Sign up below:</h3>
+  <Signup />
+</div>
+
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen">
+      <ChatList currentUser={user} selectUser={setSelectedUser} />
+      {selectedUser ? (
+        <ChatWindow currentUser={user} selectedUser={selectedUser} />
+      ) : (
+        <div className="w-2/3 flex items-center justify-center text-gray-400">
+          Select a user to start chatting
+        </div>
+      )}
+      <button onClick={logout} className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded">
+        Logout
+      </button>
+    </div>
+  );
+};
+
+export default App;

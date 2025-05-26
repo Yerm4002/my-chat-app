@@ -1,0 +1,93 @@
+/* Background */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #D0312D; /* Main background red */
+}
+
+/* Chat list container */
+.chat-list {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* Page title */
+.chat-list-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+/* Input and button wrapper */
+.chat-list-input-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Input field */
+.chat-input {
+  flex: 1;
+  padding: 10px;
+  background-color: #2e2e2e;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.chat-input::placeholder {
+  color: #ddd;
+}
+
+/* Add button */
+.chat-add-button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.chat-add-button:hover {
+  background-color: #333;
+}
+
+/* Contacts list wrapper */
+.chat-contacts-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Single contact card */
+.chat-contact {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 6px rgba(208, 49, 45, 0.3); /* soft red shadow */
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.chat-contact:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(208, 49, 45, 0.4);
+}
+
+/* Name and status */
+.chat-contact-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.chat-contact-status {
+  font-size: 13px;
+  color: #888;
+}
