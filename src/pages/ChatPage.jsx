@@ -20,7 +20,7 @@ import {
 } from 'firebase/firestore';
 import LogIn from '../components/LogIn';
 import Signup from '../components/Signup';
-import "../styles/Chat.css"; // Optional if you have other global styles
+import "../styles/Chat.css"; // Dark theme styling
 
 // Chat List Component
 const ChatList = ({ currentUser, selectUser }) => {
@@ -46,7 +46,6 @@ const ChatList = ({ currentUser, selectUser }) => {
     const q = query(collection(db, 'users'), where('email', '==', emailInput));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
-      const contactUser = querySnapshot.docs[0].data();
       const contactId = querySnapshot.docs[0].id;
       const contactRef = doc(db, `contacts/${currentUser.uid}/list/${contactId}`);
       await setDoc(contactRef, { addedAt: serverTimestamp() });
@@ -57,35 +56,25 @@ const ChatList = ({ currentUser, selectUser }) => {
   };
 
   return (
-    <div className="w-1/3 h-screen overflow-y-auto border-r border-gray-300 p-4 bg-white shadow-md">
-      <h2 className="text-2xl font-bold text-green-600 mb-6">Chats</h2>
-      <div className="flex items-center mb-6">
+    <aside className="chat-sidebar">
+      <h2 className="chat-title">Chats</h2>
+      <div className="chat-search">
         <input
           value={emailInput}
           onChange={(e) => setEmailInput(e.target.value)}
           placeholder="Add contact by email"
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"
         />
-        <button
-          onClick={handleAddContact}
-          className="px-4 py-2 bg-green-500 text-white font-semibold rounded-r-md hover:bg-green-600 transition"
-        >
-          Add
-        </button>
+        <button onClick={handleAddContact}>Add</button>
       </div>
-      <div className="space-y-3">
+      <div className="chat-contacts">
         {contacts.map((user) => (
-          <div
-            key={user.uid}
-            className="p-4 bg-gray-50 rounded-md shadow-sm border border-gray-200 hover:bg-green-50 cursor-pointer transition"
-            onClick={() => selectUser(user)}
-          >
-            <div className="font-medium text-gray-800">{user.displayName}</div>
-            <div className="text-sm text-gray-500">Tap to chat</div>
+          <div key={user.uid} className="chat-contact" onClick={() => selectUser(user)}>
+            <div className="contact-name">{user.displayName}</div>
+            <div className="contact-hint">Tap to chat</div>
           </div>
         ))}
       </div>
-    </div>
+    </aside>
   );
 };
 
@@ -93,7 +82,6 @@ const ChatList = ({ currentUser, selectUser }) => {
 const ChatWindow = ({ currentUser, selectedUser }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-
   const chatId = [currentUser.uid, selectedUser.uid].sort().join('_');
 
   useEffect(() => {
@@ -119,42 +107,28 @@ const ChatWindow = ({ currentUser, selectedUser }) => {
   };
 
   return (
-    <div className="w-2/3 h-screen flex flex-col bg-white">
-      <div className="p-4 border-b bg-green-100 text-green-800 font-bold shadow-sm">
-        {selectedUser.displayName}
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-[#f0f2f5]">
+    <main className="chat-main">
+      <header className="chat-header">{selectedUser.displayName}</header>
+      <div className="message-area">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`px-4 py-2 rounded-xl max-w-xs ${
-              msg.senderId === currentUser.uid
-                ? 'bg-green-300 ml-auto text-right'
-                : 'bg-white text-left border'
-            }`}
+            className={`message-bubble ${msg.senderId === currentUser.uid ? 'message-sent' : 'message-received'}`}
           >
             {msg.text}
           </div>
         ))}
       </div>
-
-      <form onSubmit={sendMessage} className="p-4 border-t bg-white flex gap-2">
+      <form className="message-input" onSubmit={sendMessage}>
         <input
           type="text"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 px-4 py-2 border rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-green-400"
         />
-        <button
-          type="submit"
-          className="px-5 py-2 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition"
-        >
-          Send
-        </button>
+        <button type="submit">Send</button>
       </form>
-    </div>
+    </main>
   );
 };
 
@@ -167,7 +141,6 @@ const ChatPage = () => {
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-
         const userRef = doc(db, 'users', currentUser.uid);
         const docSnap = await getDoc(userRef);
         if (!docSnap.exists()) {
@@ -187,41 +160,28 @@ const ChatPage = () => {
 
   if (!user) {
     return (
-      <div className="p-10 text-center bg-white max-w-md mx-auto mt-16 rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold text-green-600 mb-6">Welcome to WhatsApp Clone</h2>
-
-        <button
-          onClick={login}
-          className="bg-green-500 text-white px-6 py-2 rounded font-semibold mb-6 hover:bg-green-600 transition"
-        >
-          Login with Google
-        </button>
-
-        <h3 className="text-lg mt-4 mb-2 font-medium text-gray-700">Or login with Email</h3>
+      <div className="login-box">
+        <h2>Welcome to WhatsApp Clone</h2>
+        <button onClick={login}>Login with Google</button>
+        <h3>Or login with Email</h3>
         <LogIn />
-
-        <h3 className="text-lg mt-6 mb-2 font-medium text-gray-700">New user? Sign up below:</h3>
+        <h3>New user? Sign up below:</h3>
         <Signup />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="chat-container">
       <ChatList currentUser={user} selectUser={setSelectedUser} />
       {selectedUser ? (
         <ChatWindow currentUser={user} selectedUser={selectedUser} />
       ) : (
-        <div className="w-2/3 flex items-center justify-center text-gray-400 text-lg">
-          Select a user to start chatting
-        </div>
+        <main className="chat-main">
+          <div className="message-area center-text">Select a user to start chatting</div>
+        </main>
       )}
-      <button
-        onClick={logout}
-        className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded font-semibold hover:bg-red-600 transition"
-      >
-        Logout
-      </button>
+      <button onClick={logout} className="logout-button">Logout</button>
     </div>
   );
 };

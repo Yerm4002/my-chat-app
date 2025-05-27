@@ -1,93 +1,174 @@
-/* Background */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #D0312D; /* Main background red */
-}
-
-/* Chat list container */
-.chat-list {
-  max-width: 400px;
-  margin: 40px auto;
-  padding: 20px;
-}
-
-/* Page title */
-.chat-list-title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 20px;
-}
-
-/* Input and button wrapper */
-.chat-list-input-wrapper {
+.chat-container {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  height: 100vh;
+  background-color: #121212;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-/* Input field */
-.chat-input {
-  flex: 1;
-  padding: 10px;
-  background-color: #2e2e2e;
-  color: #fff;
-  border: 1px solid #444;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.chat-input::placeholder {
-  color: #ddd;
-}
-
-/* Add button */
-.chat-add-button {
-  background-color: #000;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.chat-add-button:hover {
-  background-color: #333;
-}
-
-/* Contacts list wrapper */
-.chat-contacts-wrapper {
+.chat-sidebar {
+  width: 300px;
+  background-color: #1f1f1f;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  padding: 16px;
+  border-right: 1px solid #2a2a2a;
 }
 
-/* Single contact card */
-.chat-contact {
-  background-color: #fff;
-  border-radius: 10px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 6px rgba(208, 49, 45, 0.3); /* soft red shadow */
+.chat-title {
+  font-size: 24px;
+  color: #00a884;
+  margin-bottom: 16px;
+}
+
+.chat-search {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.chat-search input {
+  flex: 1;
+  padding: 8px;
+  background-color: #2c2c2c;
+  color: white;
+  border: none;
+  border-radius: 4px 0 0 4px;
+}
+
+.chat-search button {
+  padding: 8px 12px;
+  background-color: #00a884;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
   cursor: pointer;
-  transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.chat-contacts {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-contact {
+  padding: 10px;
+  border-bottom: 1px solid #2a2a2a;
+  cursor: pointer;
 }
 
 .chat-contact:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(208, 49, 45, 0.4);
+  background-color: #2c2c2c;
 }
 
-/* Name and status */
-.chat-contact-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #222;
+.contact-name {
+  font-weight: bold;
 }
 
-.chat-contact-status {
-  font-size: 13px;
+.contact-hint {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e1e;
+}
+
+.chat-header {
+  padding: 16px;
+  background-color: #2f2f2f;
+  border-bottom: 1px solid #444;
+  font-weight: bold;
+  color: #00a884;
+}
+
+.message-area {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-bubble {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+}
+
+.message-sent {
+  background-color: #005c4b;
+  align-self: flex-end;
+}
+
+.message-received {
+  background-color: #2a2a2a;
+  align-self: flex-start;
+}
+
+.message-input {
+  display: flex;
+  padding: 16px;
+  background-color: #2a2a2a;
+  border-top: 1px solid #444;
+}
+
+.message-input input {
+  flex: 1;
+  padding: 10px;
+  background-color: #3a3a3a;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.message-input button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  background-color: #00a884;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-box {
+  max-width: 400px;
+  margin: 80px auto;
+  padding: 20px;
+  background-color: #1f1f1f;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+}
+
+.login-box button {
+  background-color: #00a884;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background-color: #ff3b3b;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.center-text {
   color: #888;
+  text-align: center;
+  margin: auto;
 }
